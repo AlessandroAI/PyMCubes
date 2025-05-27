@@ -4,23 +4,18 @@ import numpy as np
 
 def export_obj(vertices: np.ndarray, triangles: np.ndarray, filename: str, flip_normals: bool = False):
     """
-    Export a 3D mesh to a Wavefront (.obj) file.
-
-    If `flip_normals` is True, reverses the order of the vertices in each face
-    to flip the normals. Default is False.
+    Export a 3D mesh to a Wavefront (.obj) file, optimized for speed.
     """
-
     with open(filename, 'w') as fh:
-
-        for v in vertices:
-            fh.write("v {} {} {}\n".format(*v))
-
+        # Write vertices
+        np.savetxt(fh, vertices, fmt='v %.6f %.6f %.6f')
+        # Prepare faces (OBJ is 1-based indexing)
         if not flip_normals:
-            for f in triangles:
-                fh.write("f {} {} {}\n".format(*(f + 1)))
+            np.savetxt(fh, triangles + 1, fmt='f %d %d %d')
         else:
-            for f in triangles:
-                fh.write("f {} {} {}\n".format(*(f[::-1] + 1)))
+            np.savetxt(fh, triangles[:, ::-1] + 1, fmt='f %d %d %d')
+
+
 
 
 def export_off(vertices: np.ndarray, triangles: np.ndarray, filename: str):
